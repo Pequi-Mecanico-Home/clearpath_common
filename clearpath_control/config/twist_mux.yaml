@@ -2,6 +2,10 @@ twist_mux:
   ros__parameters:
     use_sim_time: False
     topics:
+      rc:
+        topic   : rc_teleop/cmd_vel
+        timeout : 0.5
+        priority: 12
       joy:
         topic   : joy_teleop/cmd_vel
         timeout : 0.5
