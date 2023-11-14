@@ -47,6 +47,9 @@ class W200Hardware : public DiffDriveHardware
 {
   private:
   hardware_interface::CallbackReturn initHardwareInterface() override;
+
+  void writeCommandsToHardware();
+  void updateJointsFromHardware();
 };
 
 }  // namespace clearpath_platform

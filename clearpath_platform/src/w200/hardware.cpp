@@ -36,6 +36,11 @@
 #include "clearpath_platform_msgs/msg/feedback.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
+static const std::string LEFT_CMD_JOINT_NAME = "front_left_wheel_joint";
+static const std::string RIGHT_CMD_JOINT_NAME = "front_right_wheel_joint";
+static const std::string LEFT_ALT_JOINT_NAME = "rear_left_wheel_joint";
+static const std::string RIGHT_ALT_JOINT_NAME = "rear_right_wheel_joint";
+
 namespace clearpath_platform
 {
 
@@ -50,6 +55,49 @@ hardware_interface::CallbackReturn W200Hardware::initHardwareInterface()
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
+
+/**
+ * @brief Write commanded velocities to the MCU
+ * 
+ */
+void W200Hardware::writeCommandsToHardware()
+{
+  double diff_speed_left = hw_commands_[wheel_joints_[LEFT_CMD_JOINT_NAME]];
+  double diff_speed_right = hw_commands_[wheel_joints_[RIGHT_CMD_JOINT_NAME]];
+
+  if (std::abs(diff_speed_left) < 0.01 && std::abs(diff_speed_right) < 0.01) {
+    diff_speed_left = diff_speed_right = 0.0;
+  }
+
+  node_->drive_command(
+    static_cast<float>(diff_speed_left),
+    static_cast<float>(diff_speed_right),
+    1);
+}
+
+/**
+ * @brief Pull latest speed and travel measurements from MCU, 
+ * and store in joint structure for ros_control
+ * 
+ */
+void W200Hardware::updateJointsFromHardware()
+{
+  rclcpp::spin_some(node_);
+
+  if (node_->has_new_feedback())
+  {
+    auto left_msg = node_->get_left_feedback();
+    auto right_msg = node_->get_right_feedback();
+    RCLCPP_DEBUG(
+      rclcpp::get_logger(hw_name_),
+      "Received linear distance information (L: %f, R: %f)",
+      left_msg.data, right_msg.data);
+    
+    hw_states_velocity_[wheel_joints_[LEFT_CMD_JOINT_NAME]] = left_msg.data;
+    hw_states_velocity_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] = right_msg.data;
+  }
+}
+
 
 }  // namespace clearpath_platform
 
