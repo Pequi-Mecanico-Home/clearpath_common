@@ -416,13 +416,7 @@
         </xacro:if>
         <xacro:unless value="$(arg is_sim)">
           <plugin>clearpath_platform/W200Hardware</plugin>
-          <plugin>fake_components/GenericSystem</plugin>
-          <param name="hw_start_duration_sec">2.0</param>
-          <param name="hw_stop_duration_sec">3.0</param>
           <param name="wheel_diameter">0.6</param>
-          <param name="max_accel">50.0</param>
-          <param name="max_speed">5.0</param>
-          <param name="polling_timeout">0.1</param>
         </xacro:unless>
       </hardware>
       <joint name="front_left_wheel_joint">
@@ -430,7 +424,6 @@
           <param name="min">-5</param>
           <param name="max">5</param>
         </command_interface>
-        <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
       <joint name="rear_left_wheel_joint">
@@ -438,7 +431,6 @@
           <param name="min">-5</param>
           <param name="max">5</param>
         </command_interface>
-        <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
       <joint name="front_right_wheel_joint">
@@ -446,7 +438,6 @@
           <param name="min">-5</param>
           <param name="max">5</param>
         </command_interface>
-        <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
       <joint name="rear_right_wheel_joint">
@@ -454,7 +445,6 @@
           <param name="min">-5</param>
           <param name="max">5</param>
         </command_interface>
-        <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
     </ros2_control>
