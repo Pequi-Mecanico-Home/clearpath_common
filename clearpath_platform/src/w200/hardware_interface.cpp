@@ -36,32 +36,33 @@
 
 using clearpath_platform::W200HardwareInterface;
 
+
+
+
 /**
  * @brief Construct a new W200HardwareInterface object
  * 
  */
 W200HardwareInterface::W200HardwareInterface(std::string node_name)
-: DiffDriveHardwareInterface(node_name)
+: Node(node_name)
 {
-
   sub_left_feedback_ = create_subscription<std_msgs::msg::Float64>(
-    "platform/motor/left/feedback",
+    "platform/motor/left/status/velocity",
     rclcpp::SensorDataQoS(),
     std::bind(&W200HardwareInterface::feedback_left_callback, this, std::placeholders::_1));
 
   sub_right_feedback_ = create_subscription<std_msgs::msg::Float64>(
-    "platform/motor/right/feedback",
+    "platform/motor/right/status/velocity",
     rclcpp::SensorDataQoS(),
     std::bind(&W200HardwareInterface::feedback_right_callback, this, std::placeholders::_1));
 
   pub_left_cmd = create_publisher<std_msgs::msg::Float64>(
-    "platform/motor/left/cmd_drive",
+    "platform/motor/left/cmd_velocity",
     rclcpp::SensorDataQoS());
 
   pub_right_cmd = create_publisher<std_msgs::msg::Float64>(
-    "platform/motor/right/cmd_drive",
+    "platform/motor/right/cmd_velocity",
     rclcpp::SensorDataQoS());
-
 }
 
 /**
@@ -75,11 +76,12 @@ void W200HardwareInterface::feedback_left_callback(const std_msgs::msg::Float64:
   has_left_feedback_ = true;
 }
 
+/// @brief 
+/// @param msg 
 void W200HardwareInterface::feedback_right_callback(const std_msgs::msg::Float64::SharedPtr msg)
 {
   feedback_right_ = *msg;
   has_right_feedback_ = true;
-
 }
 
 /**
@@ -89,7 +91,7 @@ void W200HardwareInterface::feedback_right_callback(const std_msgs::msg::Float64
  * @param right_wheel Right wheel command
  * @param mode Command mode
  */
-void W200HardwareInterface::drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode)
+void W200HardwareInterface::drive_command(const float & left_wheel, const float & right_wheel)
 {
   std_msgs::msg::Float64 msg_left_cmd, msg_right_cmd;
   msg_left_cmd.data = left_wheel;
@@ -98,6 +100,8 @@ void W200HardwareInterface::drive_command(const float & left_wheel, const float 
   pub_right_cmd->publish(msg_right_cmd);
 }
 
+/// @brief 
+/// @return 
 bool W200HardwareInterface::has_new_feedback()
 {
   return has_left_feedback_ && has_right_feedback_;

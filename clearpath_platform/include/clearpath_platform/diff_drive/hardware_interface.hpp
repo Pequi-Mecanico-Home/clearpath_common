@@ -55,9 +55,6 @@ class DiffDriveHardwareInterface
   explicit DiffDriveHardwareInterface(std::string node_name);
   virtual void drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode);
   clearpath_platform_msgs::msg::Feedback get_feedback();
-  virtual std_msgs::msg::Float64 get_left_feedback();
-  virtual std_msgs::msg::Float64 get_right_feedback();
-  virtual bool has_new_feedback();
 
   private:
   void feedback_callback(const clearpath_platform_msgs::msg::Feedback::SharedPtr msg);
