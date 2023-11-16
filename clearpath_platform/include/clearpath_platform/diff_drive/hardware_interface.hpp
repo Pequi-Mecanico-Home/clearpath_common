@@ -38,6 +38,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include <std_msgs/msg/float64.hpp>
+
 #include "clearpath_platform_msgs/msg/drive.hpp"
 #include "clearpath_platform_msgs/msg/feedback.hpp"
 
@@ -51,7 +53,7 @@ class DiffDriveHardwareInterface
 {
   public:
   explicit DiffDriveHardwareInterface(std::string node_name);
-  void drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode);
+  virtual void drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode);
   clearpath_platform_msgs::msg::Feedback get_feedback();
 
   private:

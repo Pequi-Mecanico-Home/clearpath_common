@@ -96,3 +96,4 @@ clearpath_platform_msgs::msg::Feedback DiffDriveHardwareInterface::get_feedback(
 
   return msg;
 }
+
