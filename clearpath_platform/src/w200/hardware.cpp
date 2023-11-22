@@ -32,7 +32,6 @@
  *
  */
 
-
 #include "clearpath_platform/w200/hardware.hpp"
 #include "clearpath_platform_msgs/msg/feedback.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -90,6 +89,7 @@ void W200Hardware::updateJointsFromHardware()
 
   if (node_->has_new_feedback())
   {
+    auto now_seconds = node_->now();
     auto left_msg = node_->get_left_feedback();
     auto right_msg = node_->get_right_feedback();
     RCLCPP_DEBUG(
@@ -101,6 +101,14 @@ void W200Hardware::updateJointsFromHardware()
     hw_states_velocity_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] = right_msg.data;
     hw_states_velocity_[wheel_joints_[LEFT_ALT_JOINT_NAME]] = left_msg.data;
     hw_states_velocity_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] = right_msg.data;
+
+    auto delta_time_seconds = now_seconds.seconds() - last_time_seconds_.seconds();
+    hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * delta_time_seconds;
+    hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * delta_time_seconds;
+    hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * delta_time_seconds;
+    hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * delta_time_seconds;
+
+    last_time_seconds_ = now_seconds;
   }
 }
 
@@ -126,6 +134,8 @@ hardware_interface::CallbackReturn W200Hardware::getHardwareInfo(const hardware_
 
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Number of Joints %u", num_joints_);
 
+  hw_states_position_.resize(num_joints_);
+  hw_states_position_offset_.resize(num_joints_);
   hw_states_velocity_.resize(num_joints_);
   hw_commands_.resize(num_joints_);
 
@@ -155,25 +165,37 @@ hardware_interface::CallbackReturn W200Hardware::validateJoints()
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 1)
+    if (joint.state_interfaces.size() != 2)
     {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
-        "Joint '%s' has %zu state interface. 1 expected.", joint.name.c_str(),
+        "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
         joint.state_interfaces.size());
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
+    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger(hw_name_),
+        "Joint '%s' have '%s' as first state interface. '%s' expected.",
+        joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
+        hardware_interface::HW_IF_POSITION);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+
+    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+        joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
   }
 
+  // Set the last time to now
+  last_time_seconds_ = node_->now();
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -203,7 +225,11 @@ hardware_interface::CallbackReturn W200Hardware::on_init(const hardware_interfac
 std::vector<hardware_interface::StateInterface> W200Hardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
-  for (auto i = 0u; i < num_joints_; i++) {
+  for (auto i = 0u; i < num_joints_; i++)
+  {
+    state_interfaces.emplace_back(
+      hardware_interface::StateInterface(
+        info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_position_[i]));
     state_interfaces.emplace_back(
       hardware_interface::StateInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocity_[i]));
@@ -216,7 +242,8 @@ std::vector<hardware_interface::CommandInterface> W200Hardware::export_command_i
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  for (auto i = 0u; i < num_joints_; i++) {
+  for (auto i = 0u; i < num_joints_; i++)
+  {
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
@@ -233,8 +260,12 @@ hardware_interface::CallbackReturn W200Hardware::on_activate(const rclcpp_lifecy
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Starting ...please wait...");
 
   // set some default values
-  for (auto i = 0u; i < hw_states_velocity_.size(); i++) {
-    if (std::isnan(hw_states_velocity_[i])) {
+  for (auto i = 0u; i < hw_states_position_.size(); i++)
+  {
+    if (std::isnan(hw_states_position_[i]))
+    {
+      hw_states_position_[i] = 0;
+      hw_states_position_offset_[i] = 0;
       hw_states_velocity_[i] = 0;
       hw_commands_[i] = 0;
     }
