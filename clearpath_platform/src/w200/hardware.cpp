@@ -90,7 +90,7 @@ void W200Hardware::updateJointsFromHardware()
 
   if (node_->has_new_feedback())
   {
-    auto now_seconds = node_->now();
+    // auto now_seconds = node_->now();
     auto left_msg = node_->get_left_feedback();
     auto right_msg = node_->get_right_feedback();
     RCLCPP_INFO(
@@ -103,13 +103,13 @@ void W200Hardware::updateJointsFromHardware()
     hw_states_velocity_[wheel_joints_[LEFT_ALT_JOINT_NAME]] = left_msg.data;
     hw_states_velocity_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] = right_msg.data;
 
-    auto delta_time_seconds = now_seconds.seconds() - last_time_seconds_.seconds();
-    hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * delta_time_seconds;
-    hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * delta_time_seconds;
-    hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * delta_time_seconds;
-    hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * delta_time_seconds;
+    //auto delta_time_seconds = now_seconds.seconds() - last_time_seconds_.seconds();
+    //hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * delta_time_seconds;
+    //hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * delta_time_seconds;
+    //hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * delta_time_seconds;
+    //hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * delta_time_seconds;
 
-    last_time_seconds_ = now_seconds;
+    //last_time_seconds_ = now_seconds;
   }
 }
 
@@ -196,7 +196,7 @@ hardware_interface::CallbackReturn W200Hardware::validateJoints()
   }
 
   // Set the last time to now
-  last_time_seconds_ = node_->now();
+  // last_time_seconds_ = node_->now();
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
