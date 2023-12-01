@@ -82,7 +82,7 @@ public:
   hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 protected:
   void writeCommandsToHardware();
-  void updateJointsFromHardware();
+  void updateJointsFromHardware(const rclcpp::Duration & period);
   virtual hardware_interface::CallbackReturn getHardwareInfo(const hardware_interface::HardwareInfo & info);
   virtual hardware_interface::CallbackReturn validateJoints();
   virtual hardware_interface::CallbackReturn initHardwareInterface();
@@ -96,7 +96,6 @@ protected:
 
   uint8_t num_joints_;
   std::string hw_name_;
-  rclcpp::Time last_time_seconds_;
 };
 
 }  // namespace clearpath_platform

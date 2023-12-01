@@ -84,13 +84,12 @@ void W200Hardware::writeCommandsToHardware()
  * and store in joint structure for ros_control
  * 
  */
-void W200Hardware::updateJointsFromHardware()
+void W200Hardware::updateJointsFromHardware(const rclcpp::Duration & period)
 {
   rclcpp::spin_some(node_);
 
   if (node_->has_new_feedback())
   {
-    // auto now_seconds = node_->now();
     auto left_msg = node_->get_left_feedback();
     auto right_msg = node_->get_right_feedback();
     RCLCPP_INFO(
@@ -103,13 +102,10 @@ void W200Hardware::updateJointsFromHardware()
     hw_states_velocity_[wheel_joints_[LEFT_ALT_JOINT_NAME]] = left_msg.data;
     hw_states_velocity_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] = right_msg.data;
 
-    //auto delta_time_seconds = now_seconds.seconds() - last_time_seconds_.seconds();
-    //hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * delta_time_seconds;
-    //hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * delta_time_seconds;
-    //hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * delta_time_seconds;
-    //hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * delta_time_seconds;
-
-    //last_time_seconds_ = now_seconds;
+    hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * period.seconds();
+    hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * period.seconds();
+    hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * period.seconds();
+    hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * period.seconds();
   }
 }
 
