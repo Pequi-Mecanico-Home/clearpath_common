@@ -92,7 +92,7 @@ void W200Hardware::updateJointsFromHardware()
     auto now_seconds = node_->now();
     auto left_msg = node_->get_left_feedback();
     auto right_msg = node_->get_right_feedback();
-    RCLCPP_DEBUG(
+    RCLCPP_INFO(
       rclcpp::get_logger(hw_name_),
       "Received linear distance information (L: %f, R: %f)",
       left_msg.data, right_msg.data);
@@ -287,22 +287,24 @@ hardware_interface::CallbackReturn W200Hardware::on_deactivate(const rclcpp_life
 
 hardware_interface::return_type W200Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Reading from hardware");
+  RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Reading from hardware");
 
   updateJointsFromHardware();
 
-  RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Joints successfully read!");
+  RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Joints successfully read!");
 
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type W200Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+hardware_interface::return_type W200Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
 {
-  RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Writing to hardware");
+  RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Writing to hardware");
+
+  RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Duration %f", period.seconds());
 
   writeCommandsToHardware();
 
-  RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Joints successfully written!");
+  RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Joints successfully written!");
 
   return hardware_interface::return_type::OK;
 }
