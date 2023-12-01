@@ -36,6 +36,9 @@
 #include "clearpath_platform_msgs/msg/feedback.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
+namespace clearpath_platform
+{
+
 static const std::string LEFT_CMD_JOINT_NAME = "front_left_wheel_joint";
 static const std::string RIGHT_CMD_JOINT_NAME = "front_right_wheel_joint";
 static const std::string LEFT_ALT_JOINT_NAME = "rear_left_wheel_joint";
@@ -43,8 +46,6 @@ static const std::string RIGHT_ALT_JOINT_NAME = "rear_right_wheel_joint";
 
 static constexpr double MINIMUM_VELOCITY = 0.01f;
 
-namespace clearpath_platform
-{
 
 hardware_interface::CallbackReturn W200Hardware::initHardwareInterface()
 {
