@@ -42,7 +42,8 @@
     </xacro:j100_wheel>
 
     <gazebo>
-      <plugin filename="libgz-sim-wheel-slip-system.so" name="gz::sim::systems::WheelSlip">
+      <!-- <plugin filename="libgz-sim-wheel-slip-system.so" name="gz::sim::systems::WheelSlip"> -->
+      <plugin filename="libignition-gazebo-wheel-slip-system.so" name="ignition::gazebo::systems::WheelSlip">
         <wheel link_name="front_left_wheel_link">
           <slip_compliance_lateral>1.0</slip_compliance_lateral>
           <slip_compliance_longitudinal>1.0</slip_compliance_longitudinal>
@@ -174,7 +175,8 @@
       <ros2_control name="j100_hardware" type="system">
         <hardware>
           <xacro:if value="$(arg is_sim)">
-            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            <!-- <plugin>gz_ros2_control/GazeboSimSystem</plugin> -->
+            <plugin>ign_ros2_control/IgnitionSystem</plugin>
           </xacro:if>
           <xacro:unless value="$(arg is_sim)">
             <plugin>clearpath_hardware_interfaces/J100Hardware</plugin>
