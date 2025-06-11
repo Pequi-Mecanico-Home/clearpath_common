@@ -175,8 +175,8 @@
       <ros2_control name="j100_hardware" type="system">
         <hardware>
           <xacro:if value="$(arg is_sim)">
-            <!-- <plugin>gz_ros2_control/GazeboSimSystem</plugin> -->
-            <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            <!-- <plugin>ign_ros2_control/IgnitionSystem</plugin> -->
           </xacro:if>
           <xacro:unless value="$(arg is_sim)">
             <plugin>clearpath_hardware_interfaces/J100Hardware</plugin>
